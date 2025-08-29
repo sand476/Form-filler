@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Q&A Collection System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .logo {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1rem;
+        }
+
+        .input-section {
+            margin-bottom: 30px;
+        }
+
+        .code-input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            text-align: center;
+            transition: border-color 0.3s ease;
+        }
+
+        .code-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .submit-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+            margin-top: 15px;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .question-section {
+            display: none;
+            margin-top: 30px;
+            text-align: left;
+        }
+
+        .question-text {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+            border-left: 4px solid #667eea;
+            font-size: 1.1rem;
+            line-height: 1.6;
+        }
+
+        .answer-section {
+            margin-bottom: 20px;
+        }
+
+        .answer-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .answer-textarea {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-family: inherit;
+            resize: vertical;
+            min-height: 100px;
+            transition: border-color 0.3s ease;
+        }
+
+        .answer-textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .submit-answers-btn {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+            margin-top: 20px;
+            width: 100%;
+        }
+
+        .submit-answers-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .submit-answers-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .thank-you {
+            display: none;
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .thank-you h2 {
+            color: #28a745;
+            margin-bottom: 15px;
+            font-size: 2rem;
+        }
+
+        .thank-you p {
+            color: #666;
+            font-size: 1.1rem;
+            line-height: 1.6;
+        }
+
+        .error-message {
+            color: #dc3545;
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 10px;
+            display: none;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .reset-btn {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 20px;
+            font-size: 0.9rem;
+        }
+
+        .reset-btn:hover {
+            background: #5a6268;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+                margin: 10px;
+            }
+            
+            .logo {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">📝</div>
+        <h1 class="subtitle">Q&A Collection System</h1>
+        
+        <!-- Code Input Section -->
+        <div class="input-section">
+            <input type="text" id="questionCode" class="code-input" placeholder="Enter question code (e.g., Q101, Q102...)" maxlength="10">
+            <button id="findQuestion" class="submit-btn">Find Question</button>
+            <div id="errorMessage" class="error-message"></div>
+            <div id="loading" class="loading">
+                <div class="spinner"></div>
+                <p>Loading question...</p>
+            </div>
+        </div>
+
+        <!-- Question Display Section -->
+        <div id="questionSection" class="question-section">
+            <div id="questionText" class="question-text"></div>
+            
+            <div class="answer-section">
+                <label for="answer1" class="answer-label">Answer 1:</label>
+                <textarea id="answer1" class="answer-textarea" placeholder="Please provide your first descriptive answer..."></textarea>
+            </div>
+            
+            <div class="answer-section">
+                <label for="answer2" class="answer-label">Answer 2:</label>
+                <textarea id="answer2" class="answer-textarea" placeholder="Please provide your second descriptive answer..."></textarea>
+            </div>
+            
+            <div class="answer-section">
+                <label for="answer3" class="answer-label">Answer 3:</label>
+                <textarea id="answer3" class="answer-textarea" placeholder="Please provide your third descriptive answer..."></textarea>
+            </div>
+            
+            <button id="submitAnswers" class="submit-answers-btn">Submit Answers</button>
+            <button id="resetForm" class="reset-btn">Start Over</button>
+        </div>
+
+        <!-- Thank You Section -->
+        <div id="thankYou" class="thank-you">
+            <h2>🎉 Thank You!</h2>
+            <p>Your responses have been successfully saved. Your input is valuable to us!</p>
+            <button id="newResponse" class="submit-btn">Submit Another Response</button>
+        </div>
+    </div>
+
+    <script>
+        // Configuration - Replace with your Google Apps Script URL
+        const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyfNQjE_UbceFrgrXqyG-NSMJotuCOO1Y-WfT7gRoBcgGqwX8VluwTsDxC6jzpDBdSt/exec';
+        
+        // Sample questions database (you can replace this with your actual questions)
+        const questionsDatabase = {
+            'Q101': 'What are the three most important qualities you look for in a leader?',
+            'Q102': 'Describe a challenging situation you faced and how you overcame it.',
+            'Q103': 'What motivates you to perform at your best?',
+            'Q104': 'How do you handle stress and pressure in your work?',
+            'Q105': 'What is your approach to learning new skills?',
+            'Q106': 'Describe a time when you had to work with a difficult team member.',
+            'Q107': 'What are your long-term career goals?',
+            'Q108': 'How do you prioritize tasks when you have multiple deadlines?',
+            'Q109': 'What role do you typically take in group projects?',
+            'Q110': 'How do you handle criticism and feedback?',
+            // Add more questions as needed (Q111 to Q140)
+        };
+
+        // DOM elements
+        const questionCodeInput = document.getElementById('questionCode');
+        const findQuestionBtn = document.getElementById('findQuestion');
+        const questionSection = document.getElementById('questionSection');
+        const questionText = document.getElementById('questionText');
+        const answer1 = document.getElementById('answer1');
+        const answer2 = document.getElementById('answer2');
+        const answer3 = document.getElementById('answer3');
+        const submitAnswersBtn = document.getElementById('submitAnswers');
+        const thankYou = document.getElementById('thankYou');
+        const errorMessage = document.getElementById('errorMessage');
+        const loading = document.getElementById('loading');
+        const resetFormBtn = document.getElementById('resetForm');
+        const newResponseBtn = document.getElementById('newResponse');
+
+        // Event listeners
+        findQuestionBtn.addEventListener('click', findQuestion);
+        submitAnswersBtn.addEventListener('click', submitAnswers);
+        resetFormBtn.addEventListener('click', resetForm);
+        newResponseBtn.addEventListener('click', resetForm);
+        
+        // Allow Enter key to submit
+        questionCodeInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                findQuestion();
+            }
+        });
+
+        function showError(message) {
+            errorMessage.textContent = message;
+            errorMessage.style.display = 'block';
+            setTimeout(() => {
+                errorMessage.style.display = 'none';
+            }, 5000);
+        }
+
+        function showLoading(show) {
+            loading.style.display = show ? 'block' : 'none';
+            findQuestionBtn.disabled = show;
+        }
+
+        function findQuestion() {
+            const code = questionCodeInput.value.trim().toUpperCase();
+            
+            if (!code) {
+                showError('Please enter a question code.');
+                return;
+            }
+
+            showLoading(true);
+            errorMessage.style.display = 'none';
+
+            // Simulate API call delay (remove this in production)
+            setTimeout(() => {
+                const question = questionsDatabase[code];
+                
+                if (question) {
+                    questionText.textContent = question;
+                    questionSection.style.display = 'block';
+                    thankYou.style.display = 'none';
+                    questionCodeInput.disabled = true;
+                    findQuestionBtn.disabled = true;
+                } else {
+                    showError('Question code not found. Please check the code and try again.');
+                }
+                
+                showLoading(false);
+            }, 1000);
+        }
+
+        async function submitAnswers() {
+            const code = questionCodeInput.value.trim().toUpperCase();
+            const answer1Text = answer1.value.trim();
+            const answer2Text = answer2.value.trim();
+            const answer3Text = answer3.value.trim();
+
+            // Validation
+            if (!answer1Text || !answer2Text || !answer3Text) {
+                showError('Please provide all three answers before submitting.');
+                return;
+            }
+
+            submitAnswersBtn.disabled = true;
+            submitAnswersBtn.textContent = 'Submitting...';
+
+            const responseData = {
+                questionCode: code,
+                questionText: questionsDatabase[code],
+                answer1: answer1Text,
+                answer2: answer2Text,
+                answer3: answer3Text,
+                timestamp: new Date().toISOString()
+            };
+
+            try {
+                // If using Google Apps Script
+                if (GOOGLE_APPS_SCRIPT_URL !== 'https://script.google.com/macros/s/AKfycbyfNQjE_UbceFrgrXqyG-NSMJotuCOO1Y-WfT7gRoBcgGqwX8VluwTsDxC6jzpDBdSt/exec') {
+                    await submitToGoogleSheets(responseData);
+                } else {
+                    // Fallback: Store in localStorage for demo purposes
+                    storeLocally(responseData);
+                }
+                
+                questionSection.style.display = 'none';
+                thankYou.style.display = 'block';
+                
+            } catch (error) {
+                console.error('Error submitting answers:', error);
+                showError('Failed to submit answers. Please try again.');
+                submitAnswersBtn.disabled = false;
+                submitAnswersBtn.textContent = 'Submit Answers';
+            }
+        }
+
+        async function submitToGoogleSheets(data) {
+            console.log('Submitting to Google Sheets:', data);
+            console.log('URL:', GOOGLE_APPS_SCRIPT_URL);
+            
+            const response = await fetch(GOOGLE_APPS_SCRIPT_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data)
+            });
+
+            console.log('Response status:', response.status);
+            console.log('Response ok:', response.ok);
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error('Response error:', errorText);
+                throw new Error(`Failed to submit to Google Sheets: ${response.status} ${errorText}`);
+            }
+
+            const result = await response.json();
+            console.log('Response result:', result);
+            return result;
+        }
+
+        function storeLocally(data) {
+            // Fallback storage for demo purposes
+            const existingData = JSON.parse(localStorage.getItem('qaResponses') || '[]');
+            existingData.push(data);
+            localStorage.setItem('qaResponses', JSON.stringify(existingData));
+            console.log('Response stored locally:', data);
+        }
+
+        function resetForm() {
+            questionCodeInput.value = '';
+            questionCodeInput.disabled = false;
+            findQuestionBtn.disabled = false;
+            answer1.value = '';
+            answer2.value = '';
+            answer3.value = '';
+            questionSection.style.display = 'none';
+            thankYou.style.display = 'none';
+            errorMessage.style.display = 'none';
+            submitAnswersBtn.disabled = false;
+            submitAnswersBtn.textContent = 'Submit Answers';
+        }
+
+        // Initialize
+        resetForm();
+    </script>
+</body>
+</html>
